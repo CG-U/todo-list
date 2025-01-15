@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ForgotPassword, Home, Login, SignUp } from "./pages/components";
+import { AuthProvider, useAuth } from "./context/authContext/Auth";
+import { Navigate, Outlet } from "react-router-dom";
+import { NavBar } from "./atoms/components";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="flex flex-col h-[100dvh]">
+          <NavBar />
+          <div className="flex-1 pt-8">
+            <Routes>
+              <Route element={<LoggedInUserCannotGoRoute />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/sign-up" element={<SignUp />} />
+              </Route>
+
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Home />} />
+              </Route>
+            </Routes>
+          </div>
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
-export default App
+const ProtectedRoute = () => {
+  const { userLoggedIn } = useAuth();
+
+  // Redirect to login if the user is not logged in
+  return userLoggedIn ? <Outlet /> : <Navigate to="/login" />;
+};
+
+const LoggedInUserCannotGoRoute = () => {
+  const { userLoggedIn } = useAuth();
+
+  // Redirect to home if the user is not logged in
+  return !userLoggedIn ? <Outlet /> : <Navigate to="/" />;
+};
+
+export default App;
