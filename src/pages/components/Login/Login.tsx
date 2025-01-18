@@ -44,7 +44,10 @@ export function Login() {
   }, [userLoggedIn]);
 
   return (
-    <div className="flex items-center justify-center h-full bg-slate-200 ">
+    <div
+      className="flex items-center justify-center h-full bg-slate-200 "
+      data-theme="cupcake"
+    >
       <div className="w-4/5 lg:w-3/5 h-[65%] hidden md:grid grid-cols-2 rounded-lg shadow-lg overflow-clip transition-all duration-100">
         <div className="flex flex-col p-10 bg-white text-slate-600">
           <div className="flex flex-col flex-1">
@@ -59,11 +62,11 @@ export function Login() {
               />
             </span>
             <div>
-              <label className="flex flex-col mb-4 font-bold">
+              <label className="flex flex-col mb-4 font-bold ">
                 Email:
                 <input
                   type="email"
-                  className="p-1 mt-2 rounded-lg bg-slate-400"
+                  className="mt-2 input input-primary input-sm {} "
                   value={email}
                   onChange={handleEmailChange}
                 />
@@ -74,16 +77,13 @@ export function Login() {
                 Password:
                 <input
                   type="password"
-                  className="p-1 mt-2 rounded-lg bg-slate-400"
+                  className="mt-2 input input-primary input-sm"
                   value={password}
                   onChange={handlePasswordChange}
                 />
               </label>
             </div>
-            <button
-              className="px-4 py-1 mt-auto text-white transition-colors duration-200 bg-blue-700 rounded-full hover:bg-blue-800"
-              onClick={handleLogin}
-            >
+            <button className="mt-auto btn btn-primary" onClick={handleLogin}>
               Login
             </button>
             <Link to={"/forgot-password"} className="mx-auto mt-2 text-sm">
@@ -91,7 +91,7 @@ export function Login() {
             </Link>
           </div>
         </div>
-        <div className="flex flex-col p-10 text-white bg-gradient-to-br from-blue-950 to-blue-600">
+        <div className="flex flex-col p-10 bg-primary text-primary-content">
           <div className="flex flex-col items-center justify-center h-full m-auto space-y-4 text-center w-fit">
             <h1 className="text-2xl font-black">Welcome To Listify</h1>
             <span className="flex justify-center space-x-1 ">
@@ -101,10 +101,7 @@ export function Login() {
                 <span className="font-bold">Ced</span>
               </p>
             </span>
-            <Link
-              to={"/sign-up"}
-              className="px-4 py-1 transition-colors duration-200 border border-white rounded-full hover:bg-white hover:text-blue-700"
-            >
+            <Link to={"/sign-up"} className="btn btn-primary-content">
               Sign Up
             </Link>
           </div>

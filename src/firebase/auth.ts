@@ -7,13 +7,22 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   updatePassword,
+  updateProfile,
 } from "firebase/auth";
 
 export const authCreateUserWithEmailAndPassword = async (
   email: string,
-  password: string
+  password: string,
+  displayName: string
 ) => {
-  return createUserWithEmailAndPassword(auth, email, password);
+  return createUserWithEmailAndPassword(auth, email, password).then(() => {
+    if (auth.currentUser) {
+      updateProfile(auth.currentUser, {
+        displayName: displayName,
+        photoURL: "https://loremflickr.com/200/200?random=1",
+      });
+    }
+  });
 };
 
 export const authSignInWithEmailAndPassword = async (

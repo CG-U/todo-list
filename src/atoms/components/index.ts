@@ -1,2 +1,2 @@
-export {TasksPanel} from './TasksPanel';
-export {NavBar} from './NavBar';
+export { TasksPanel } from "./TasksPanel";
+export {ToggleThemeButton} from './ToggleThemeButton';

@@ -18,4 +18,17 @@ export default {
     },
   },
   plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      "cupcake",
+      {
+        night: {
+          ...require("daisyui/src/theming/themes")["night"],
+          ".input-primary": {
+            text: "#fff",
+          },
+        },
+      },
+    ],
+  },
 };

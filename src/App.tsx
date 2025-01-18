@@ -3,15 +3,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ForgotPassword, Home, Login, SignUp } from "./pages/components";
 import { AuthProvider, useAuth } from "./context/authContext/Auth";
 import { Navigate, Outlet } from "react-router-dom";
-import { NavBar } from "./atoms/components";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <div className="flex flex-col h-[100dvh]">
-          <NavBar />
-          <div className="flex-1 pt-8">
+          <div className="flex-1">
             <Routes>
               <Route element={<LoggedInUserCannotGoRoute />}>
                 <Route path="/login" element={<Login />} />
