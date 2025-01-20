@@ -9,7 +9,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <div className="flex flex-col h-[100dvh]">
-          <div className="flex-1">
+          <div className="h-full">
             <Routes>
               <Route element={<LoggedInUserCannotGoRoute />}>
                 <Route path="/login" element={<Login />} />

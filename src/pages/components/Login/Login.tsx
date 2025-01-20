@@ -6,7 +6,7 @@ import {
 } from "../../../firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/authContext/Auth";
-import googleIcon from "../../../../public/google-icon.png";
+import googleIcon from "./../../../assets/google-icon.png";
 
 export interface LoginProps {
   prop?: string;

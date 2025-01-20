@@ -12,7 +12,8 @@ import { useAuth } from "../../../context/authContext/Auth";
 import { db } from "../../../firebase/firebase";
 import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
-import trashIcon from "/public/trash.svg";
+import trashIcon from "../../../assets/trash.svg";
+import { useSearchParams } from "react-router-dom";
 
 export type Task = {
   id: string;
@@ -22,13 +23,15 @@ export type Task = {
   createdAt: string;
   completedAt: string;
   userId: string; // Should be auto set on firestore
+  project?: string;
+  deadline?: string;
 };
 
 export interface TasksPanelProps {
-  prop?: string;
+  handleExistingProjects: (projects: string[]) => void;
 }
 
-export function TasksPanel() {
+export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
   const { currentUser } = useAuth();
 
   // TODO: Create a simple to do list app that saves actions in firestore such as adding a task, finishing a task, removing a task
@@ -48,10 +51,15 @@ export function TasksPanel() {
     });
   };
 
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    console.log(searchParams.get("find"));
+  }, [searchParams.get("find")]);
+
   const fetchTasks = async () => {
     setLoading(true);
     if (currentUser) {
-      console.log(currentUser.uid);
       const q = query(
         collection(db, "tasks"),
         where("userId", "==", currentUser.uid)
@@ -60,7 +68,6 @@ export function TasksPanel() {
       const querySnapshot = await getDocs(q);
       const tasks: Task[] = [];
       querySnapshot.forEach((doc) => {
-        console.log(doc.data());
         tasks.push({ ...doc.data(), id: doc.id } as Task);
       });
 
@@ -78,6 +85,7 @@ export function TasksPanel() {
   useLayoutEffect(() => {
     const completed = userTasks.filter((task) => task.isFinished);
     const pending = userTasks.filter((task) => !task.isFinished);
+    const filter = searchParams.get("find");
 
     setCompletedTasks(
       completed.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -85,6 +93,39 @@ export function TasksPanel() {
     setPendingTasks(
       pending.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     );
+
+    handleExistingProjects(
+      Array.from(
+        new Set(
+          userTasks
+            .map((task) => task.project?.toLowerCase())
+            .filter((project) => project !== undefined)
+        )
+      ) as string[]
+    );
+
+    switch (filter) {
+      case "today":
+        setPendingTasks(
+          pending.filter((task) =>
+            moment(task.deadline).isSame(moment(), "day")
+          )
+        );
+        setCompletedTasks(
+          completed.filter((task) =>
+            moment(task.deadline).isSame(moment(), "day")
+          )
+        );
+        break;
+      case "projects":
+        setPendingTasks(pending.filter((task) => task.project));
+        break;
+      case "completed":
+        setPendingTasks(pending.filter((task) => task.isFinished));
+        break;
+      default:
+        break;
+    }
   }, [userTasks]);
 
   // const handleRefetchTask = () => {
@@ -96,15 +137,15 @@ export function TasksPanel() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full h-full mt-8 overflow-y-scroll ">
-      <section className="flex flex-col justify-center w-full space-y-2 overflow-x-hidden">
+    <div className="flex flex-col items-center w-full h-full overflow-y-scroll ">
+      <section className="flex flex-col justify-center w-full space-y-2 overflow-x-hidden ">
         <h1 className="text-xl font-black">Your Tasks</h1>
-        <div className="flex space-x-4 overflow-x-scroll snap-x snap-mandatory">
-          {loading ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {loading && pendingTasks.length === 0 ? (
             <span className="loading loading-dots">Loading...</span>
           ) : null}
           {pendingTasks.map((task) => (
-            <div className="snap-center shrink-0">
+            <div className="w-full h-full ">
               <Task
                 task={task}
                 handleQuickRemoveTask={handleQuickRemoveTask}
@@ -115,13 +156,13 @@ export function TasksPanel() {
           ))}
         </div>
 
-        <h1 className="text-xl font-black">Completed Tasks</h1>
-        <div className="flex space-x-4 overflow-x-scroll snap-x snap-mandatory">
-          {loading ? (
+        {/* <h1 className="text-xl font-black">Completed Tasks</h1>
+        <div className="flex flex-col gap-4 overflow-y-scroll md:flex-wrap md:flex-row">
+          {loading && completedTasks.length === 0 ? (
             <span className="loading loading-dots">Loading...</span>
           ) : null}
           {completedTasks.map((task) => (
-            <div className="snap-center shrink-0">
+            <div className="w-fit">
               <Task
                 task={task}
                 handleQuickRemoveTask={handleQuickRemoveTask}
@@ -130,13 +171,10 @@ export function TasksPanel() {
               />
             </div>
           ))}
-        </div>
+        </div> */}
       </section>
 
-      <AddTask
-        // handleRefetchTask={handleRefetchTask}
-        addNewTask={addNewTask}
-      />
+      <AddTask addNewTask={addNewTask} />
     </div>
   );
 }
@@ -185,31 +223,38 @@ function Task({
 
   return (
     <div
-      className={`w-full max-w-screen-sm p-4 mx-auto text-black bg-gray-200 rounded shadow-md `}
+      className={`w-full max-w-screen-sm p-4 mx-auto bg-neutral text-neutral-content rounded shadow-md space-y-2 h-full flex flex-col`}
     >
-      <h2 className="font-bold text-blue-600">{task.title}</h2>
-      <p>Is Task completed: {task.isFinished ? "YES" : "NO"}</p>
-      <div className="ml-4">
-        <div className="text-sm text-gray-600">
+      <div className="flex-1">
+        <h2 className="font-bold text-primary">{task.title}</h2>
+        {/* <p>Is Task completed: {task.isFinished ? "YES" : "NO"}</p> */}
+
+        {/* <div className="text-xs text-neutral-content">
           <p>Created: {moment(task.createdAt).format("LLL")}</p>
           {task.isFinished && (
             <p>Completed: {moment(task.completedAt).format("LLL")}</p>
           )}
+        </div> */}
+        <div className="text-xs text-neutral-content">
+          {task.isFinished && (
+            <p>Completed: {moment(task.completedAt).format("LLL")}</p>
+          )}
+          <p>Due on: {moment(task.deadline).format("LLL")}</p>
         </div>
+
         <p>{task.description}</p>
       </div>
-
-      <div className="flex mt-2 space-x-2">
+      <div className="flex justify-end w-full mt-auto space-x-2 ">
         {!task.isFinished && (
           <button
-            className="px-2 py-1 text-white bg-green-500 rounded"
+            className="px-2 py-1 rounded-md btn btn-success"
             onClick={handleCompleteTask}
           >
             Complete
           </button>
         )}
         <button
-          className="px-2 py-1 text-white bg-red-500 rounded"
+          className="px-2 py-1 rounded-md btn btn-error"
           onClick={handleDeleteTask}
         >
           <img
@@ -232,6 +277,7 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
     isFinished: false,
     userId: currentUser ? currentUser.uid : "",
     createdAt: moment().toString(),
+    deadline: "",
     completedAt: moment().toString(),
     id: "",
   });
@@ -253,7 +299,6 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
       const docRef = await addDoc(collection(db, "tasks"), {
         ...task,
       });
-      console.log("Document written with ID: ", docRef.id);
 
       // instead of refetching the tasks, we can just add the new task to the list
 
@@ -291,8 +336,8 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
       >
         Add Task
       </button>
-      <dialog id="create-task-modal" className="h-screen modal">
-        <div className="text-white bg-white modal-box">
+      <dialog id="create-task-modal" className="h-screen modal ">
+        <div className=" modal-box">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -300,11 +345,11 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
             }}
             className="flex flex-col space-y-4"
           >
-            <label className="flex flex-col font-bold text-black">
+            <label className="flex flex-col font-bold ">
               Title
               <input
                 type="text"
-                className="px-2 py-1 mt-2 font-light text-black rounded bg-slate-300 placeholder:text-slate-500"
+                className="rounded-lg input input-sm input-primary"
                 placeholder="Title"
                 value={newTask.title}
                 onChange={(e) => {
@@ -312,11 +357,11 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
                 }}
               />
             </label>
-            <label className="flex flex-col font-bold text-black">
+            <label className="flex flex-col font-bold ">
               Description
-              <input
-                type="text"
-                className="px-2 py-1 mt-2 font-light text-black rounded bg-slate-300 placeholder:text-slate-500"
+              <textarea
+                // type="text"
+                className="rounded-lg textarea textarea-primary"
                 placeholder="Description"
                 value={newTask.description}
                 onChange={(e) => {
@@ -324,13 +369,34 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
                 }}
               />
             </label>
+            <label className="flex flex-col font-bold ">
+              Project
+              <input
+                type="text"
+                className="rounded-lg input input-sm input-primary"
+                placeholder="Project"
+                value={newTask.project}
+                onChange={(e) => {
+                  setNewTask({ ...newTask, project: e.target.value });
+                }}
+              />
+            </label>
+            <label className="flex flex-col font-bold ">
+              Deadline
+              <input
+                type="date"
+                className="rounded-lg input input-sm input-primary"
+                value={newTask.deadline}
+                onChange={(e) => {
+                  setNewTask({ ...newTask, deadline: e.target.value });
+                }}
+              />
+            </label>
+
             {loading ? (
               <span className="loading loading-spinner loading-sm"></span>
             ) : (
-              <button
-                type="submit"
-                className="w-1/2 mx-auto text-white bg-blue-600 btn btn-square"
-              >
+              <button type="submit" className="btn btn-primary">
                 Add Task
               </button>
             )}
