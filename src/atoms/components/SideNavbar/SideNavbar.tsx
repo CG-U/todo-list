@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ToggleThemeButton } from "../ToggleThemeButton";
 import { authSignOut } from "../../../firebase/auth";
 import { useAuth } from "../../../context/authContext/Auth";
@@ -9,6 +9,7 @@ export interface SideNavbarProps {
 
 export function SideNavbar({ projects }: SideNavbarProps) {
   const { currentUser } = useAuth();
+  const [searchParams] = useSearchParams();
 
   return (
     <section className="flex flex-col w-1/4 shadow-lg bg-neutral">
@@ -30,14 +31,18 @@ export function SideNavbar({ projects }: SideNavbarProps) {
           </Link>
         </div>
         <div>
-          <h2 className="text-lg text-neutral-content">Projects</h2>
+          <Link className="text-lg text-neutral-content" to="?project">
+            Projects
+          </Link>
           {
             // Display the projects
             projects.map((project) => (
               <div key={project} className="pl-4">
                 <Link
                   to={`?project=${project}`}
-                  className="text-lg text-neutral-content"
+                  className={`flex items-center text-lg text-neutral-content transition-all duration-100 ${
+                    project === searchParams.get("project") ? "font-bold" : ""
+                  }`}
                 >
                   {project}
                 </Link>

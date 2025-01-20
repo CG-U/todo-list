@@ -139,7 +139,9 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
   return (
     <div className="flex flex-col items-center w-full h-full overflow-y-scroll ">
       <section className="flex flex-col justify-center w-full space-y-2 overflow-x-hidden ">
-        <h1 className="text-xl font-black">Your Tasks</h1>
+        <h1 className="text-xl font-black">
+          Your Tasks {project ? "for " + project : ""}
+        </h1>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {loading && pendingTasks.length === 0 ? (
             <span className="loading loading-dots">Loading...</span>
