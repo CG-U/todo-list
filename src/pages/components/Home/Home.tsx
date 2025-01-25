@@ -3,7 +3,7 @@ import {
   SideNavbar,
   TasksPanel,
 } from "../../../organisms/components";
-import React, { useState } from "react";
+import { useState } from "react";
 
 export interface HomeProps {
   prop?: string;
