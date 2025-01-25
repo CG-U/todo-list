@@ -373,7 +373,9 @@ function Task({
 
       <dialog id={`task-modal-${task.id}`} className="cursor-default modal ">
         <div className="flex flex-col w-4/5 space-y-5 modal-box h-4/5 bg-neutral text-">
-          <h2 className="text-2xl font-bold">{task.title}</h2>
+          <h2 className="text-2xl font-bold break-words line-clamp-3">
+            {task.title}
+          </h2>
           <p className="flex-1 p-4 overflow-y-auto border rounded-md border-neutral-content">
             {task.description}
           </p>
