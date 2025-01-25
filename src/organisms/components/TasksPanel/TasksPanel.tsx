@@ -82,25 +82,50 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
 
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [pendingTasks, setPendingTasks] = useState<Task[]>([]);
+  const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
 
   const project = searchParams.get("project");
+  const filter = searchParams.get("find");
   useLayoutEffect(() => {
-    const completed = userTasks.filter(
+    setShowCompleted(false);
+    setShowOverdue(false);
+
+    const filteredTasks = userTasks.filter((task) => {
+      if (filter === "today") {
+        return moment(task.deadline).isSame(moment(), "day");
+      } else if (filter === "projects") {
+        return task.project;
+      } else if (filter === "completed") {
+        return task.isFinished;
+      } else {
+        return true;
+      }
+    });
+
+    const completed = filteredTasks.filter(
       (task) =>
         task.isFinished && (!project || task.project?.toLowerCase() === project)
     );
-    const pending = userTasks.filter(
+    const pending = filteredTasks.filter(
       (task) =>
         !task.isFinished &&
         (!project || task.project?.toLowerCase() === project)
     );
-    const filter = searchParams.get("find");
+
+    const overdueTasks = pending.filter((task) =>
+      moment(task.deadline).isBefore(moment())
+    );
 
     setCompletedTasks(
       completed.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     );
     setPendingTasks(
-      pending.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      pending
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .filter((task) => !moment(task.deadline).isBefore(moment()))
+    );
+    setOverdueTasks(
+      overdueTasks.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     );
 
     handleExistingProjects(
@@ -120,6 +145,7 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
             moment(task.deadline).isSame(moment(), "day")
           )
         );
+        setShowPending(true);
         setCompletedTasks(
           completed.filter((task) =>
             moment(task.deadline).isSame(moment(), "day")
@@ -131,11 +157,12 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
         break;
       case "completed":
         setPendingTasks(pending.filter((task) => task.isFinished));
+        setShowCompleted(true);
         break;
       default:
         break;
     }
-  }, [userTasks, project]);
+  }, [userTasks, project, filter]);
 
   // const handleRefetchTask = () => {
   //   fetchTasks();
@@ -146,28 +173,80 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
   };
 
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
+  const [showOverdue, setShowOverdue] = useState<boolean>(false);
+  const [showPending, setShowPending] = useState<boolean>(true);
 
   return (
-    <div className="flex flex-col items-center w-full h-full overflow-y-scroll ">
+    <div className="flex flex-col items-center w-full overflow-y-scroll h-fit ">
       <section className="flex flex-col justify-center w-full space-y-2 overflow-x-hidden ">
-        <h1 className="text-xl font-black">
-          Your Tasks {project ? "for " + project : ""}
-        </h1>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {loading && pendingTasks.length === 0 ? (
-            <span className="loading loading-dots">Loading...</span>
-          ) : null}
-          {pendingTasks.map((task) => (
-            <div className="w-full h-full ">
-              <Task
-                task={task}
-                handleQuickRemoveTask={handleQuickRemoveTask}
-                handleQuickCompletedTask={handleQuickCompletedTask}
-                key={task.id}
-              />
-            </div>
-          ))}
-        </div>
+        {pendingTasks.length > 0 && (
+          <button
+            className="flex items-center mr-auto text-xl font-black "
+            onClick={() => setShowPending((prev) => !prev)}
+          >
+            Pending Tasks {project ? "for " + project : ""}
+            <img
+              src={chevronRight}
+              className={`w-5 h-5 transform duration-150 ml-2 ${
+                showPending ? "rotate-90" : ""
+              }`}
+              style={{ fill: "currentColor" }}
+            />
+          </button>
+        )}
+
+        {showPending && (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {loading && pendingTasks.length === 0 ? (
+              <span className="loading loading-dots">Loading...</span>
+            ) : null}
+            {pendingTasks.length === 0 &&
+              !loading &&
+              filter !== "completed" && <span>No Tasks Due Today</span>}
+            {pendingTasks.map((task) => (
+              <div className="w-full h-full ">
+                <Task
+                  task={task}
+                  handleQuickRemoveTask={handleQuickRemoveTask}
+                  handleQuickCompletedTask={handleQuickCompletedTask}
+                  key={task.id}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {overdueTasks.length > 0 && (
+          <button
+            className="flex items-center mr-auto text-xl font-black "
+            onClick={() => setShowOverdue((prev) => !prev)}
+          >
+            Overdue Tasks{" "}
+            <img
+              src={chevronRight}
+              className={`w-5 h-5 transform  duration-150 ml-2 ${
+                showOverdue ? "rotate-90" : ""
+              }`}
+            />
+          </button>
+        )}
+
+        {showOverdue && (
+          <div className="flex flex-col gap-4 overflow-y-scroll md:flex-wrap md:flex-row">
+            {loading && overdueTasks.length === 0 ? (
+              <span className="loading loading-dots">Loading...</span>
+            ) : null}
+            {overdueTasks.map((task) => (
+              <div className="w-fit" key={task.id}>
+                <Task
+                  task={task}
+                  handleQuickRemoveTask={handleQuickRemoveTask}
+                  handleQuickCompletedTask={handleQuickCompletedTask}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         {completedTasks.length > 0 && (
           <button
@@ -253,26 +332,18 @@ function Task({
 
   return (
     <div
-      className={`w-full max-w-screen-sm p-4 mx-auto bg-neutral text-neutral-content rounded shadow-md space-y-2 h-full flex flex-col`}
+      className={`w-full max-w-screen-sm p-4 mx-auto  rounded shadow-md space-y-2 h-full flex flex-col bg-neutral text-neutral-content `}
     >
       <div className="flex-1">
-        <h2 className="font-bold text-primary">{task.title}</h2>
-        {/* <p>Is Task completed: {task.isFinished ? "YES" : "NO"}</p> */}
-
-        {/* <div className="text-xs text-neutral-content">
-          <p>Created: {moment(task.createdAt).format("LLL")}</p>
-          {task.isFinished && (
-            <p>Completed: {moment(task.completedAt).format("LLL")}</p>
-          )}
-        </div> */}
-        <div className="text-xs text-neutral-content">
+        <h2 className="font-bold">{task.title}</h2>
+        <div className="text-xs ">
           {task.isFinished && (
             <p>Completed: {moment(task.completedAt).format("LLL")}</p>
           )}
           <p>Due on: {moment(task.deadline).format("LLL")}</p>
         </div>
 
-        <p>{task.description}</p>
+        <p className="">{task.description}</p>
       </div>
       <div className="flex justify-end w-full mt-auto space-x-2 ">
         {!task.isFinished && (
@@ -354,7 +425,7 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
     <div>
       {/* Open the modal using document.getElementById('create-task-modal').showModal() method */}
       <button
-        className="fixed mr-4 bottom-4 right-4 btn"
+        className="fixed mr-4 bottom-4 right-4 btn btn-primary"
         onClick={() => {
           const modal = document.getElementById(
             "create-task-modal"

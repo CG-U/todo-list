@@ -20,7 +20,7 @@ export default {
   plugins: [require("daisyui")],
   daisyui: {
     themes: [
-      "cupcake",
+      "nord",
       {
         night: {
           ...require("daisyui/src/theming/themes")["night"],

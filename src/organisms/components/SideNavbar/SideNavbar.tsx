@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { ToggleThemeButton } from "../ToggleThemeButton";
+import { ToggleThemeButton } from "../../../atoms/components";
 import { authSignOut } from "../../../firebase/auth";
 import { useAuth } from "../../../context/authContext/Auth";
 
@@ -12,7 +12,7 @@ export function SideNavbar({ projects }: SideNavbarProps) {
   const [searchParams] = useSearchParams();
 
   return (
-    <section className="flex flex-col w-1/4 shadow-lg bg-neutral">
+    <section className="flex-col hidden w-1/4 shadow-lg bg-neutral md:flex">
       <h2 className="flex justify-between px-2 py-4 text-xl font-bold bg-primary text-primary-content">
         {currentUser?.displayName}
         <ToggleThemeButton className="w-5 h-5" />
@@ -32,7 +32,7 @@ export function SideNavbar({ projects }: SideNavbarProps) {
         </div>
         <div>
           <Link className="text-lg text-neutral-content" to="?project">
-            Projects
+            All Projects
           </Link>
           {
             // Display the projects
@@ -54,7 +54,7 @@ export function SideNavbar({ projects }: SideNavbarProps) {
 
       <button
         onClick={authSignOut}
-        className="px-4 py-2 mt-auto rounded-b-none btn btn-secondary text-neutral"
+        className="px-4 py-2 mt-auto rounded-b-none btn btn-primary text-primary-content "
       >
         Sign Out
       </button>

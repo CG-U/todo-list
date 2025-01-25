@@ -1,4 +1,8 @@
-import { SideNavbar, TasksPanel } from "../../../atoms/components";
+import {
+  MobileNavBar,
+  SideNavbar,
+  TasksPanel,
+} from "../../../organisms/components";
 import React, { useState } from "react";
 
 export interface HomeProps {
@@ -13,8 +17,9 @@ export function Home() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-col h-screen md:flex-row ">
       <SideNavbar projects={projects} />
+      <MobileNavBar projects={projects} />
       <div className="flex flex-1 h-full max-h-screen p-4 overflow-scroll">
         <TasksPanel handleExistingProjects={handleExistingProjects} />
       </div>

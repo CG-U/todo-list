@@ -8,7 +8,7 @@ export function ToggleThemeButton({
   const isNight = initialTheme === "night";
 
   const toggleTheme = () => {
-    const newTheme = theme === "night" ? "cupcake" : "night";
+    const newTheme = theme === "night" ? "nord" : "night";
     setTheme(newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
   };

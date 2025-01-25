@@ -46,7 +46,7 @@ export function Login() {
   return (
     <div
       className="flex items-center justify-center h-full bg-slate-200 "
-      data-theme="cupcake"
+      data-theme="nord"
     >
       <div className="w-4/5 lg:w-3/5 h-[65%] hidden md:grid grid-cols-2 rounded-lg shadow-lg overflow-clip transition-all duration-100">
         <div className="flex flex-col p-10 bg-white text-slate-600">
