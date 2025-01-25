@@ -1,5 +1,5 @@
 export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
-  iconName: "menu" | "delete" | "chevron_left";
+  iconName: "menu" | "delete" | "chevron_left" | "chevron_right";
 }
 
 export function Icon(props: IconProps) {

@@ -13,8 +13,8 @@ import { db } from "../../../firebase/firebase";
 import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
 import trashIcon from "../../../assets/trash.svg";
-import chevronRight from "../../../assets/chevron-right.svg";
 import { useSearchParams } from "react-router-dom";
+import { Icon } from "../../../atoms/components";
 
 export type Task = {
   id: string;
@@ -185,12 +185,11 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
             onClick={() => setShowPending((prev) => !prev)}
           >
             Pending Tasks {project ? "for " + project : ""}
-            <img
-              src={chevronRight}
+            <Icon
+              iconName="chevron_right"
               className={`w-5 h-5 transform duration-150 ml-2 ${
                 showPending ? "rotate-90" : ""
               }`}
-              style={{ fill: "currentColor" }}
             />
           </button>
         )}
@@ -222,9 +221,9 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
             onClick={() => setShowOverdue((prev) => !prev)}
           >
             Overdue Tasks{" "}
-            <img
-              src={chevronRight}
-              className={`w-5 h-5 transform  duration-150 ml-2 ${
+            <Icon
+              iconName="chevron_right"
+              className={`w-5 h-5 transform duration-150 ml-2 ${
                 showOverdue ? "rotate-90" : ""
               }`}
             />
@@ -232,12 +231,12 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
         )}
 
         {showOverdue && (
-          <div className="flex flex-col gap-4 overflow-y-scroll md:flex-wrap md:flex-row">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {loading && overdueTasks.length === 0 ? (
               <span className="loading loading-dots">Loading...</span>
             ) : null}
             {overdueTasks.map((task) => (
-              <div className="w-fit" key={task.id}>
+              <div className="w-full h-full" key={task.id}>
                 <Task
                   task={task}
                   handleQuickRemoveTask={handleQuickRemoveTask}
@@ -254,9 +253,9 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
             onClick={() => setShowCompleted((prev) => !prev)}
           >
             Completed Tasks{" "}
-            <img
-              src={chevronRight}
-              className={`w-5 h-5 transform  duration-150 ml-2 ${
+            <Icon
+              iconName="chevron_right"
+              className={`w-5 h-5 transform duration-150 ml-2 ${
                 showCompleted ? "rotate-90" : ""
               }`}
             />
@@ -265,12 +264,12 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
 
         {showCompleted && (
           <>
-            <div className="flex flex-col gap-4 overflow-y-scroll md:flex-wrap md:flex-row">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {loading && completedTasks.length === 0 ? (
                 <span className="loading loading-dots">Loading...</span>
               ) : null}
               {completedTasks.map((task) => (
-                <div className="w-fit" key={task.id}>
+                <div className="w-full h-full" key={task.id}>
                   <Task
                     task={task}
                     handleQuickRemoveTask={handleQuickRemoveTask}
