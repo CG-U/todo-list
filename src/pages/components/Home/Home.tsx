@@ -21,7 +21,10 @@ export function Home() {
       <SideNavbar projects={projects} />
       <MobileNavBar projects={projects} />
       <div className="flex flex-1 h-full max-h-screen p-4 overflow-scroll">
-        <TasksPanel handleExistingProjects={handleExistingProjects} />
+        <TasksPanel
+          handleExistingProjects={handleExistingProjects}
+          projects={projects}
+        />
       </div>
     </div>
   );

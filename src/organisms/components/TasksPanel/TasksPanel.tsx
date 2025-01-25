@@ -12,7 +12,6 @@ import { useAuth } from "../../../context/authContext/Auth";
 import { db } from "../../../firebase/firebase";
 import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
-import trashIcon from "../../../assets/trash.svg";
 import { useSearchParams } from "react-router-dom";
 import { Icon } from "../../../atoms/components";
 
@@ -30,9 +29,13 @@ export type Task = {
 
 export interface TasksPanelProps {
   handleExistingProjects: (projects: string[]) => void;
+  projects: string[];
 }
 
-export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
+export function TasksPanel({
+  handleExistingProjects,
+  projects,
+}: TasksPanelProps) {
   const { currentUser } = useAuth();
 
   // TODO: Create a simple to do list app that saves actions in firestore such as adding a task, finishing a task, removing a task
@@ -53,10 +56,6 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
   };
 
   const [searchParams] = useSearchParams();
-
-  useEffect(() => {
-    console.log(searchParams.get("find"));
-  }, [searchParams.get("find")]);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -199,9 +198,9 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
             {loading && pendingTasks.length === 0 ? (
               <span className="loading loading-dots">Loading...</span>
             ) : null}
-            {pendingTasks.length === 0 &&
-              !loading &&
-              filter !== "completed" && <span>No Tasks Due Today</span>}
+            {pendingTasks.length === 0 && !loading && filter === "today" && (
+              <span>No Tasks Due Today</span>
+            )}
             {pendingTasks.map((task) => (
               <div className="w-full h-full ">
                 <Task
@@ -282,7 +281,7 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
         )}
       </section>
 
-      <AddTask addNewTask={addNewTask} />
+      <AddTask addNewTask={addNewTask} projects={projects} />
     </div>
   );
 }
@@ -300,7 +299,6 @@ function Task({
     const deleteTask = async (taskId: string) => {
       try {
         await deleteDoc(doc(db, "tasks", taskId));
-        console.log("Document successfully deleted!");
       } catch (e) {
         console.error("Error removing document: ", e);
       }
@@ -318,7 +316,6 @@ function Task({
           isFinished: true,
           completedAt: moment().toString(),
         });
-        console.log("Task marked as completed!");
 
         handleQuickCompletedTask(task.id);
       } catch (e) {
@@ -329,12 +326,23 @@ function Task({
     completeTask(task.id);
   };
 
+  const openTaskModal = () => {
+    const modal = document.getElementById(
+      `task-modal-${task.id}`
+    ) as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
   return (
     <div
+      onClick={openTaskModal}
+      role="button"
       className={`w-full max-w-screen-sm p-4 mx-auto  rounded shadow-md space-y-2 h-full flex flex-col bg-neutral text-neutral-content `}
     >
       <div className="flex-1">
-        <h2 className="font-bold">{task.title}</h2>
+        <h2 className="font-bold cursor-pointer">{task.title}</h2>
         <div className="text-xs ">
           {task.isFinished && (
             <p>Completed: {moment(task.completedAt).format("LLL")}</p>
@@ -342,7 +350,7 @@ function Task({
           <p>Due on: {moment(task.deadline).format("LLL")}</p>
         </div>
 
-        <p className="">{task.description}</p>
+        <p className="line-clamp-4">{task.description}</p>
       </div>
       <div className="flex justify-end w-full mt-auto space-x-2 ">
         {!task.isFinished && (
@@ -354,21 +362,36 @@ function Task({
           </button>
         )}
         <button
-          className="px-2 py-1 rounded-md btn btn-error"
+          className="flex items-center rounded-md btn btn-error"
           onClick={handleDeleteTask}
         >
-          <img
-            src={trashIcon}
-            alt="delete"
-            className="object-contain w-8 h-8 p-1 text-white fill-white"
-          />
+          <Icon iconName="delete" className="text-error-content" />
         </button>
       </div>
+
+      <dialog id={`task-modal-${task.id}`} className="cursor-default modal ">
+        <div className="flex flex-col w-4/5 space-y-5 modal-box h-4/5 bg-neutral text-">
+          <h2 className="text-2xl font-bold">{task.title}</h2>
+          <p className="flex-1 p-4 overflow-y-auto border rounded-md border-neutral-content">
+            {task.description}
+          </p>
+
+          <form method="dialog" className="mt-auto modal-backdrop">
+            <button className="btn btn-primary">Close</button>
+          </form>
+        </div>
+      </dialog>
     </div>
   );
 }
 
-function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
+function AddTask({
+  addNewTask,
+}: // projects,
+{
+  addNewTask: (task: Task) => void;
+  projects: string[];
+}) {
   const { currentUser } = useAuth();
 
   const [newTask, setNewTask] = useState<Task>({
@@ -393,7 +416,6 @@ function AddTask({ addNewTask }: { addNewTask: (task: Task) => void }) {
   };
 
   const handleCreateNewTask = async (task: Task) => {
-    console.log(task);
     setLoading(true);
     try {
       const docRef = await addDoc(collection(db, "tasks"), {
