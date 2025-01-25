@@ -176,7 +176,7 @@ export function TasksPanel({
   const [showPending, setShowPending] = useState<boolean>(true);
 
   return (
-    <div className="flex flex-col items-center w-full overflow-y-scroll h-fit ">
+    <div className="flex flex-col items-center w-full overflow-y-scroll ">
       <section className="flex flex-col justify-center w-full space-y-2 overflow-x-hidden ">
         {pendingTasks.length > 0 && (
           <button
