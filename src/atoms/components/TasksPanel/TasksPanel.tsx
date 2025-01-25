@@ -13,6 +13,7 @@ import { db } from "../../../firebase/firebase";
 import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
 import trashIcon from "../../../assets/trash.svg";
+import chevronRight from "../../../assets/chevron-right.svg";
 import { useSearchParams } from "react-router-dom";
 
 export type Task = {
@@ -82,9 +83,17 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [pendingTasks, setPendingTasks] = useState<Task[]>([]);
 
+  const project = searchParams.get("project");
   useLayoutEffect(() => {
-    const completed = userTasks.filter((task) => task.isFinished);
-    const pending = userTasks.filter((task) => !task.isFinished);
+    const completed = userTasks.filter(
+      (task) =>
+        task.isFinished && (!project || task.project?.toLowerCase() === project)
+    );
+    const pending = userTasks.filter(
+      (task) =>
+        !task.isFinished &&
+        (!project || task.project?.toLowerCase() === project)
+    );
     const filter = searchParams.get("find");
 
     setCompletedTasks(
@@ -126,7 +135,7 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
       default:
         break;
     }
-  }, [userTasks]);
+  }, [userTasks, project]);
 
   // const handleRefetchTask = () => {
   //   fetchTasks();
@@ -135,6 +144,8 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
   const addNewTask = (task: Task) => {
     setUserTasks((prev) => [...prev, task]);
   };
+
+  const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
   return (
     <div className="flex flex-col items-center w-full h-full overflow-y-scroll ">
@@ -158,22 +169,39 @@ export function TasksPanel({ handleExistingProjects }: TasksPanelProps) {
           ))}
         </div>
 
-        {/* <h1 className="text-xl font-black">Completed Tasks</h1>
-        <div className="flex flex-col gap-4 overflow-y-scroll md:flex-wrap md:flex-row">
-          {loading && completedTasks.length === 0 ? (
-            <span className="loading loading-dots">Loading...</span>
-          ) : null}
-          {completedTasks.map((task) => (
-            <div className="w-fit">
-              <Task
-                task={task}
-                handleQuickRemoveTask={handleQuickRemoveTask}
-                handleQuickCompletedTask={handleQuickCompletedTask}
-                key={task.id}
-              />
+        {completedTasks.length > 0 && (
+          <button
+            className="flex items-center mr-auto text-xl font-black "
+            onClick={() => setShowCompleted((prev) => !prev)}
+          >
+            Completed Tasks{" "}
+            <img
+              src={chevronRight}
+              className={`w-5 h-5 transform  duration-150 ml-2 ${
+                showCompleted ? "rotate-90" : ""
+              }`}
+            />
+          </button>
+        )}
+
+        {showCompleted && (
+          <>
+            <div className="flex flex-col gap-4 overflow-y-scroll md:flex-wrap md:flex-row">
+              {loading && completedTasks.length === 0 ? (
+                <span className="loading loading-dots">Loading...</span>
+              ) : null}
+              {completedTasks.map((task) => (
+                <div className="w-fit" key={task.id}>
+                  <Task
+                    task={task}
+                    handleQuickRemoveTask={handleQuickRemoveTask}
+                    handleQuickCompletedTask={handleQuickCompletedTask}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div> */}
+          </>
+        )}
       </section>
 
       <AddTask addNewTask={addNewTask} />
