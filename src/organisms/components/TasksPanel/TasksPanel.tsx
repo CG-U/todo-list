@@ -342,7 +342,9 @@ function Task({
       className={`w-full max-w-screen-sm p-4 mx-auto  rounded shadow-md space-y-2 h-full flex flex-col bg-neutral text-neutral-content `}
     >
       <div className="flex-1">
-        <h2 className="font-bold cursor-pointer">{task.title}</h2>
+        <h2 className="font-bold break-words cursor-pointer line-clamp-2">
+          {task.title}
+        </h2>
         <div className="text-xs ">
           {task.isFinished && (
             <p>Completed: {moment(task.completedAt).format("LLL")}</p>
