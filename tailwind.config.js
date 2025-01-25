@@ -20,6 +20,8 @@ export default {
   plugins: [require("daisyui")],
   daisyui: {
     themes: [
+      "halloween",
+      "dark",
       "nord",
       {
         night: {

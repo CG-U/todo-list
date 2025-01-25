@@ -45,12 +45,15 @@ export function Login() {
 
   return (
     <div
-      className="flex items-center justify-center h-full bg-slate-200 "
+      className="flex items-center justify-center h-full bg-neutral-content "
       data-theme="nord"
     >
-      <div className="w-4/5 lg:w-3/5 h-[65%] hidden md:grid grid-cols-2 rounded-lg shadow-lg overflow-clip transition-all duration-100">
-        <div className="flex flex-col p-10 bg-white text-slate-600">
+      <div className="w-full h-full md:w-4/5 lg:w-3/5 md:h-[65%]  md:grid grid-cols-2 rounded-lg shadow-lg overflow-clip transition-all duration-100">
+        <div className="flex flex-col w-full h-full p-10 bg-white text-slate-600 ">
           <div className="flex flex-col flex-1">
+            <h1 className="w-full mb-8 text-2xl font-black md:hidden">
+              Welcome To <span className="text-accent">Listify</span>
+            </h1>
             <span className="flex items-center justify-between mb-8">
               <h2 className="text-2xl cursor-default ">Sign In</h2>{" "}
               <img
@@ -66,7 +69,7 @@ export function Login() {
                 Email:
                 <input
                   type="email"
-                  className="mt-2 input input-primary input-sm {} "
+                  className="mt-2 input input-primary input-sm"
                   value={email}
                   onChange={handleEmailChange}
                 />
@@ -83,7 +86,10 @@ export function Login() {
                 />
               </label>
             </div>
-            <button className="mt-auto btn btn-primary" onClick={handleLogin}>
+            <button
+              className="mt-auto text-white btn drop-shadow-md btn-neutral"
+              onClick={handleLogin}
+            >
               Login
             </button>
             <Link to={"/forgot-password"} className="mx-auto mt-2 text-sm">
@@ -91,9 +97,11 @@ export function Login() {
             </Link>
           </div>
         </div>
-        <div className="flex flex-col p-10 bg-primary text-primary-content">
+        <div className="flex-col hidden p-10 text-white bg-neutral md:flex">
           <div className="flex flex-col items-center justify-center h-full m-auto space-y-4 text-center w-fit">
-            <h1 className="text-2xl font-black">Welcome To Listify</h1>
+            <h1 className="text-2xl font-black">
+              Welcome To <span className="text-accent">Listify</span>
+            </h1>
             <span className="flex justify-center space-x-1 ">
               <p>A To Do List App by</p>
               <p>
@@ -101,7 +109,10 @@ export function Login() {
                 <span className="font-bold">Ced</span>
               </p>
             </span>
-            <Link to={"/sign-up"} className="btn btn-primary-content">
+            <Link
+              to={"/sign-up"}
+              className="btn btn-accent text-accent-content"
+            >
               Sign Up
             </Link>
           </div>
