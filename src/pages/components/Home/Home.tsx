@@ -20,7 +20,7 @@ export function Home() {
     <div className="flex flex-col h-screen md:flex-row ">
       <SideNavbar projects={projects} />
       <MobileNavBar projects={projects} />
-      <div className="flex h-full p-4 overflow-scroll">
+      <div className="flex-1 w-full h-full p-4 overflow-scroll md:2/3">
         <TasksPanel
           handleExistingProjects={handleExistingProjects}
           projects={projects}
